@@ -124,17 +124,67 @@
             align-items: center;
             justify-content: center;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
         }
 
         .card-front {
-            background: linear-gradient(45deg, var(--primary-purple), var(--light-purple));
+            background: linear-gradient(45deg, #2c0c4d, #5a2a7f);
             border: 2px solid var(--gold);
         }
 
+        .card-front::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, transparent 30%, rgba(0, 0, 0, 0.5) 100%);
+        }
+
+        .card-symbol {
+            font-size: 3rem;
+            color: var(--gold);
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.7);
+            z-index: 1;
+        }
+
         .card-back {
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="150" height="250" viewBox="0 0 150 250"><rect width="150" height="250" fill="%234a1e6a"/><circle cx="75" cy="125" r="50" fill="%23d4af37" opacity="0.2"/><path d="M75,50 L85,70 L65,70 Z" fill="%23d4af37" opacity="0.5"/><path d="M75,200 L85,180 L65,180 Z" fill="%23d4af37" opacity="0.5"/></svg>');
+            background: linear-gradient(135deg, #1a0b2e, #3d1b5c);
             transform: rotateY(180deg);
             border: 2px solid var(--gold);
+            padding: 15px;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card-title {
+            color: var(--gold);
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-shadow: 0 0 5px rgba(212, 175, 55, 0.5);
+            margin-bottom: 5px;
+        }
+
+        .card-status {
+            font-size: 0.8rem;
+            color: #ffcc00;
+            font-style: italic;
+        }
+
+        .card-image {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .card-svg {
+            width: 80px;
+            height: 80px;
+            filter: drop-shadow(0 0 5px rgba(212, 175, 55, 0.5));
         }
 
         .card-content {
@@ -152,6 +202,7 @@
             justify-content: center;
             gap: 15px;
             margin: 20px 0;
+            flex-wrap: wrap;
         }
 
         button {
@@ -161,11 +212,14 @@
             padding: 10px 20px;
             border-radius: 5px;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.3s;
+            font-weight: bold;
         }
 
         button:hover {
             background: var(--light-purple);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
 
         .interpretation {
@@ -174,6 +228,23 @@
             padding: 20px;
             margin-top: 30px;
             border-left: 3px solid var(--gold);
+        }
+
+        .interpretation h3 {
+            color: var(--gold);
+            margin-bottom: 15px;
+        }
+
+        .interpretation-item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .interpretation-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
         }
 
         .hidden {
@@ -201,6 +272,28 @@
             opacity: 0.7;
         }
 
+        textarea {
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid var(--gold);
+            border-radius: 5px;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid var(--gold);
+            border-radius: 5px;
+        }
+
         /* Responsive design */
         @media (max-width: 768px) {
             .main-menu {
@@ -214,6 +307,16 @@
             
             h1 {
                 font-size: 2rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            button {
+                width: 100%;
+                max-width: 300px;
             }
         }
     </style>
@@ -246,7 +349,7 @@
                 <div class="menu-card">
                     <h3>Pembacaan Berdasarkan Pertanyaan</h3>
                     <p>Ajukan pertanyaan spesifik dan dapatkan panduan dari kartu tarot.</p>
-                    <textarea id="question-input" placeholder="Tulis pertanyaan Anda di sini..." rows="3" style="width: 100%; margin: 10px 0; padding: 10px; background: rgba(255,255,255,0.1); color: white; border: 1px solid var(--gold); border-radius: 5px;"></textarea>
+                    <textarea id="question-input" placeholder="Tulis pertanyaan Anda di sini..." rows="3"></textarea>
                     <button onclick="startQuestionReading()">Dapatkan Pembacaan</button>
                 </div>
 
@@ -273,7 +376,9 @@
 
                 <div class="interpretation" id="interpretation">
                     <h3>Interpretasi</h3>
-                    <p id="interpretation-text">Pilih atau acak kartu untuk melihat interpretasi.</p>
+                    <div id="interpretation-text">
+                        <p>Pilih atau acak kartu untuk melihat interpretasi.</p>
+                    </div>
                 </div>
             </section>
 
@@ -295,7 +400,7 @@
                 <div class="menu-card" style="text-align: left;">
                     <h3>Personaliasi Berdasarkan Zodiak</h3>
                     <p>Pilih zodiak Anda untuk pembacaan yang lebih personal.</p>
-                    <select id="zodiac-select" style="width: 100%; padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); color: white; border: 1px solid var(--gold); border-radius: 5px;">
+                    <select id="zodiac-select">
                         <option value="">Pilih Zodiak</option>
                         <option value="aries">Aries</option>
                         <option value="taurus">Taurus</option>
@@ -313,7 +418,7 @@
                     
                     <h3>Kategori Pembacaan</h3>
                     <p>Pilih kategori fokus untuk pembacaan tarot.</p>
-                    <select id="category-select" style="width: 100%; padding: 10px; margin: 10px 0; background: rgba(255,255,255,0.1); color: white; border: 1px solid var(--gold); border-radius: 5px;">
+                    <select id="category-select">
                         <option value="general">Umum</option>
                         <option value="love">Cinta & Hubungan</option>
                         <option value="career">Karier & Keuangan</option>
@@ -339,7 +444,7 @@
     </div>
 
     <script>
-        // Data kartu tarot
+        // Data kartu tarot yang lebih lengkap
         const tarotDeck = [
             {
                 name: "The Fool",
@@ -357,7 +462,8 @@
                     career: "Keputusan buruk, kurang perencanaan",
                     health: "Kecerobohan dengan kesehatan, mengabaikan gejala",
                     spiritual: "Hilang arah, kurang keyakinan"
-                }
+                },
+                symbol: "♊"
             },
             {
                 name: "The Magician",
@@ -375,9 +481,9 @@
                     career: "Keterampilan tidak digunakan, proyek mandek",
                     health: "Kekurangan energi, ketidakseimbangan",
                     spiritual: "Penyalahgunaan kekuatan spiritual, egoisme"
-                }
+                },
+                symbol: "♌"
             },
-            // Tambahkan lebih banyak kartu di sini...
             {
                 name: "The High Priestess",
                 image: "high_priestess",
@@ -394,7 +500,8 @@
                     career: "Mengabaikan firasat, informasi yang disembunyikan",
                     health: "Mengabaikan gejala, ketidakseimbangan emosional",
                     spiritual: "Terputus dari intuisi, kebingungan spiritual"
-                }
+                },
+                symbol: "🌙"
             },
             {
                 name: "The Empress",
@@ -412,7 +519,122 @@
                     career: "Kreativitas terhambat, kemandulan ide",
                     health: "Masalah kesuburan, ketidakseimbangan hormon",
                     spiritual: "Terputus dari alam, energi feminin tertekan"
-                }
+                },
+                symbol: "👑"
+            },
+            {
+                name: "The Emperor",
+                image: "emperor",
+                meanings: {
+                    general: "Otoritas, struktur, stabilitas, kepemimpinan",
+                    love: "Hubungan yang terstruktur, komitmen kuat",
+                    career: "Kepemimpinan, organisasi, pencapaian tujuan",
+                    health: "Disiplin kesehatan, rutinitas yang teratur",
+                    spiritual: "Struktur spiritual, disiplin praktik"
+                },
+                reversed: {
+                    general: "Kontrol berlebihan, kekakuan, tirani",
+                    love: "Dominasi dalam hubungan, kurang fleksibilitas",
+                    career: "Otoriter, birokrasi berlebihan",
+                    health: "Mengabaikan kesehatan, disiplin longgar",
+                    spiritual: "Dogmatis, kurang fleksibilitas spiritual"
+                },
+                symbol: "♈"
+            },
+            {
+                name: "The Lovers",
+                image: "lovers",
+                meanings: {
+                    general: "Cinta, hubungan, pilihan, harmoni",
+                    love: "Hubungan yang penuh cinta, keputusan romantis",
+                    career: "Kemitraan bisnis, kolaborasi yang harmonis",
+                    health: "Keseimbangan emosional, kesehatan hubungan",
+                    spiritual: "Kesatuan, koneksi spiritual yang mendalam"
+                },
+                reversed: {
+                    general: "Konflik, ketidakseimbangan, pilihan sulit",
+                    love: "Perselisihan, ketidakcocokan, perpisahan",
+                    career: "Kemitraan bermasalah, konflik di tempat kerja",
+                    health: "Ketidakseimbangan emosional, stres hubungan",
+                    spiritual: "Perpecahan, ketidakharmonisan spiritual"
+                },
+                symbol: "💑"
+            },
+            {
+                name: "The Chariot",
+                image: "chariot",
+                meanings: {
+                    general: "Kemenangan, kemauan, kendali, perjalanan",
+                    love: "Hubungan yang berkembang, mengatasi rintangan",
+                    career: "Kemajuan karier, mengatasi persaingan",
+                    health: "Pemulihan, mengatasi penyakit",
+                    spiritual: "Perjalanan spiritual, kendali diri"
+                },
+                reversed: {
+                    general: "Kekacauan, kurang kendali, kemacetan",
+                    love: "Konflik dalam hubungan, kurang arah",
+                    career: "Kemacetan proyek, persaingan tidak sehat",
+                    health: "Kemunduran kesehatan, kurang disiplin",
+                    spiritual: "Kebingungan spiritual, kurang fokus"
+                },
+                symbol: "⚔️"
+            },
+            {
+                name: "Strength",
+                image: "strength",
+                meanings: {
+                    general: "Kekuatan batin, keberanian, belas kasih, ketahanan",
+                    love: "Cinta yang kuat, hubungan yang tahan uji",
+                    career: "Ketekunan, mengatasi tantangan",
+                    health: "Kekuatan fisik dan mental, pemulihan",
+                    spiritual: "Kekuatan spiritual, ketahanan iman"
+                },
+                reversed: {
+                    general: "Keraguan diri, kelemahan, ketakutan",
+                    love: "Ketergantungan, hubungan tidak seimbang",
+                    career: "Kurang kepercayaan diri, menyerah",
+                    health: "Kelemahan fisik, kelelahan mental",
+                    spiritual: "Keraguan spiritual, kehilangan iman"
+                },
+                symbol: "🦁"
+            },
+            {
+                name: "The Hermit",
+                image: "hermit",
+                meanings: {
+                    general: "Introspeksi, kebijaksanaan, pencarian, kesendirian",
+                    love: "Waktu untuk diri sendiri, evaluasi hubungan",
+                    career: "Perencanaan strategis, mencari tujuan",
+                    health: "Penyembuhan internal, istirahat yang diperlukan",
+                    spiritual: "Pencarian spiritual, kebijaksanaan batin"
+                },
+                reversed: {
+                    general: "Isolasi, kesepian, menghindar dari dunia",
+                    love: "Menghindari hubungan, ketakutan akan keintiman",
+                    career: "Penundaan, kurang arah",
+                    health: "Mengabaikan kesehatan, isolasi sosial",
+                    spiritual: "Kebingungan spiritual, kurang bimbingan"
+                },
+                symbol: "🕯️"
+            },
+            {
+                name: "Wheel of Fortune",
+                image: "wheel",
+                meanings: {
+                    general: "Perubahan, siklus, takdir, peluang",
+                    love: "Perubahan dalam hubungan, pertemuan tak terduga",
+                    career: "Perubahan karir, peluang baru",
+                    health: "Perubahan kondisi kesehatan, siklus pemulihan",
+                    spiritual: "Siklus spiritual, penerimaan takdir"
+                },
+                reversed: {
+                    general: "Kemalangan, resistensi terhadap perubahan, stagnasi",
+                    love: "Masalah hubungan yang berulang, ketidakpastian",
+                    career: "Hambatan, peluang yang terlewat",
+                    health: "Kesehatan yang fluktuatif, kemunduran",
+                    spiritual: "Melawan takdir, ketidakpercayaan pada siklus"
+                },
+                symbol: "🔄"
             }
         ];
 
@@ -420,6 +642,8 @@
         let currentReading = [];
         let currentReadingType = "";
         let audioContext = null;
+        let oscillator = null;
+        let gainNode = null;
         let audioEnabled = false;
         let userSettings = {
             zodiac: "",
@@ -429,9 +653,22 @@
         // Inisialisasi
         document.addEventListener('DOMContentLoaded', function() {
             loadSettings();
-            initializeServiceWorker();
+            initializeAudio();
             updateAudioButton();
         });
+
+        // Fungsi untuk inisialisasi audio
+        function initializeAudio() {
+            try {
+                // Buat context audio
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                gainNode = audioContext.createGain();
+                gainNode.connect(audioContext.destination);
+                gainNode.gain.value = 0.1; // Volume rendah untuk suara ambient
+            } catch (e) {
+                console.log("Web Audio API tidak didukung di browser ini");
+            }
+        }
 
         // Fungsi untuk menampilkan halaman pembacaan
         function showReadingPage(type) {
@@ -479,10 +716,11 @@
                             <div class="card-symbol">✨</div>
                         </div>
                         <div class="card-back">
-                            <div class="card-content">
-                                <h3>Kartu ${i+1}</h3>
-                                <p>Klik untuk membalik</p>
+                            <div class="card-title">Kartu ${i+1}</div>
+                            <div class="card-image">
+                                <div class="card-symbol">⏳</div>
                             </div>
+                            <div class="card-status">Klik untuk membalik</div>
                         </div>
                     </div>
                 `;
@@ -495,6 +733,7 @@
                             drawRandomCard(cardIndex);
                         }
                         updateInterpretation();
+                        playCardSound();
                     }
                 });
                 
@@ -508,8 +747,8 @@
             const randomIndex = Math.floor(Math.random() * tarotDeck.length);
             const card = {...tarotDeck[randomIndex]};
             
-            // Tentukan apakah kartu terbalik (50% kemungkinan)
-            card.reversed = Math.random() > 0.5;
+            // Tentukan apakah kartu terbalik (30% kemungkinan)
+            card.reversed = Math.random() > 0.7;
             
             currentReading[index] = card;
             
@@ -517,10 +756,11 @@
             const cardElement = document.getElementById('card-container').children[index];
             const cardBack = cardElement.querySelector('.card-back');
             cardBack.innerHTML = `
-                <div class="card-content">
-                    <h3>${card.name}</h3>
-                    <p>${card.reversed ? '(Terbalik)' : ''}</p>
+                <div class="card-title">${card.name}</div>
+                <div class="card-image">
+                    <div class="card-symbol">${card.symbol}</div>
                 </div>
+                <div class="card-status">${card.reversed ? '(Terbalik)' : ''}</div>
             `;
         }
 
@@ -537,14 +777,19 @@
             }
             
             // Reset interpretasi
-            document.getElementById('interpretation-text').textContent = "Kartu telah diacak. Klik pada kartu untuk melihat interpretasi.";
+            document.getElementById('interpretation-text').innerHTML = "<p>Kartu telah diacak. Klik pada kartu untuk melihat interpretasi.</p>";
             playCardSound();
         }
 
         // Fungsi untuk membalik semua kartu
         function flipAllCards() {
             const cards = document.querySelectorAll('.tarot-card');
+            let allAlreadyFlipped = true;
+            
             cards.forEach(card => {
+                if (!card.classList.contains('flipped')) {
+                    allAlreadyFlipped = false;
+                }
                 card.classList.add('flipped');
                 
                 // Jika kartu belum ditarik, tarik kartu acak
@@ -554,14 +799,17 @@
                 }
             });
             
+            if (!allAlreadyFlipped) {
+                playCardSound();
+            }
+            
             updateInterpretation();
-            playCardSound();
         }
 
         // Fungsi untuk memperbarui interpretasi
         function updateInterpretation() {
             const interpretationElement = document.getElementById('interpretation-text');
-            let interpretationText = "";
+            let interpretationHTML = "";
             
             // Periksa apakah semua kartu sudah terbuka
             const allFlipped = Array.from(document.querySelectorAll('.tarot-card')).every(card => 
@@ -569,28 +817,39 @@
             );
             
             if (!allFlipped) {
-                interpretationText = "Balik semua kartu untuk melihat interpretasi lengkap.";
+                interpretationHTML = "<p>Balik semua kartu untuk melihat interpretasi lengkap.</p>";
             } else {
-                interpretationText = "<h4>Interpretasi Pembacaan:</h4>";
+                interpretationHTML = "<h4>Interpretasi Pembacaan:</h4>";
                 
                 currentReading.forEach((card, index) => {
                     if (card) {
                         const positionText = getPositionText(index, currentReadingType);
-                        const meaning = card.reversed ? 
-                            card.meanings[userSettings.category] + " (Terbalik: " + card.reversed[userSettings.category] + ")" :
-                            card.meanings[userSettings.category];
+                        let meaning = "";
                         
-                        interpretationText += `<p><strong>${positionText}: ${card.name}</strong><br>${meaning}</p>`;
+                        if (card.reversed) {
+                            // Pastikan reversed meaning ada, jika tidak gunakan yang regular
+                            meaning = card.reversed[userSettings.category] || 
+                                     "Makna terbalik tidak tersedia untuk kategori ini. " + card.meanings[userSettings.category];
+                        } else {
+                            meaning = card.meanings[userSettings.category];
+                        }
+                        
+                        interpretationHTML += `
+                            <div class="interpretation-item">
+                                <p><strong>${positionText}: ${card.name} ${card.reversed ? '(Terbalik)' : ''}</strong></p>
+                                <p>${meaning}</p>
+                            </div>
+                        `;
                     }
                 });
                 
                 // Tambahkan interpretasi berdasarkan zodiak jika dipilih
                 if (userSettings.zodiac) {
-                    interpretationText += `<p><em>Berdasarkan zodiak ${userSettings.zodiac}, pembacaan ini menunjukkan...</em></p>`;
+                    interpretationHTML += `<p><em>Berdasarkan zodiak ${userSettings.zodiac}, pembacaan ini menunjukkan kecenderungan untuk petualangan dan eksplorasi spiritual.</em></p>`;
                 }
             }
             
-            interpretationElement.innerHTML = interpretationText;
+            interpretationElement.innerHTML = interpretationHTML;
         }
 
         // Fungsi untuk mendapatkan teks posisi berdasarkan jenis pembacaan
@@ -630,9 +889,12 @@
                 cards: currentReading.map(card => ({
                     name: card.name,
                     reversed: card.reversed,
-                    meaning: card.reversed ? card.reversed[userSettings.category] : card.meanings[userSettings.category]
+                    meaning: card.reversed ? 
+                        (card.reversed[userSettings.category] || "Makna terbalik tidak tersedia") : 
+                        card.meanings[userSettings.category]
                 })),
-                date: new Date().toISOString(),
+                date: new Date().toLocaleDateString('id-ID'),
+                time: new Date().toLocaleTimeString('id-ID'),
                 question: document.getElementById('question-input').value || "Tidak ada pertanyaan spesifik",
                 settings: {...userSettings}
             };
@@ -680,14 +942,14 @@
                 const archiveItem = document.createElement('div');
                 archiveItem.className = 'archive-item';
                 
-                const date = new Date(reading.date).toLocaleDateString('id-ID');
                 let cardList = reading.cards.map(card => 
                     `${card.name} ${card.reversed ? '(Terbalik)' : ''}`
                 ).join(', ');
                 
                 archiveItem.innerHTML = `
-                    <h3>Pembacaan ${getReadingTypeText(reading.type)} - ${date}</h3>
+                    <h3>Pembacaan ${getReadingTypeText(reading.type)} - ${reading.date} ${reading.time}</h3>
                     <p><strong>Pertanyaan:</strong> ${reading.question}</p>
+                    <p><strong>Kategori:</strong> ${getCategoryText(reading.settings.category)}</p>
                     <p><strong>Kartu:</strong> ${cardList}</p>
                     <button onclick="deleteReading(${index})">Hapus</button>
                 `;
@@ -711,6 +973,18 @@
                 case 'three': return 'Tiga Kartu';
                 case 'celtic': return 'Celtic Cross';
                 default: return type;
+            }
+        }
+
+        // Fungsi untuk mendapatkan teks kategori
+        function getCategoryText(category) {
+            switch(category) {
+                case 'general': return 'Umum';
+                case 'love': return 'Cinta & Hubungan';
+                case 'career': return 'Karier & Keuangan';
+                case 'health': return 'Kesehatan';
+                case 'spiritual': return 'Spiritualitas';
+                default: return category;
             }
         }
 
@@ -769,32 +1043,57 @@
         }
 
         function playAmbientSound() {
-            // Implementasi sederhana suara ambient
-            // Di implementasi nyata, Anda akan menggunakan file audio
-            console.log("Memutar suara ambient...");
-        }
-
-        function stopAmbientSound() {
-            console.log("Menghentikan suara ambient...");
-        }
-
-        function playCardSound() {
-            // Efek suara sederhana saat kartu dibalik
-            if (audioEnabled) {
-                console.log("Memutar efek suara kartu...");
+            if (!audioContext || oscillator) return;
+            
+            try {
+                oscillator = audioContext.createOscillator();
+                oscillator.type = 'sine';
+                oscillator.frequency.value = 220; // Frekuensi rendah untuk suara ambient
+                
+                const gain = audioContext.createGain();
+                gain.gain.value = 0.02; // Volume sangat rendah
+                
+                oscillator.connect(gain);
+                gain.connect(audioContext.destination);
+                
+                oscillator.start();
+            } catch (e) {
+                console.log("Error memutar suara ambient:", e);
             }
         }
 
-        // Service Worker untuk fungsionalitas offline
-        function initializeServiceWorker() {
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => {
-                        console.log('Service Worker terdaftar dengan sukses:', registration);
-                    })
-                    .catch(error => {
-                        console.log('Pendaftaran Service Worker gagal:', error);
-                    });
+        function stopAmbientSound() {
+            if (oscillator) {
+                oscillator.stop();
+                oscillator = null;
+            }
+        }
+
+        function playCardSound() {
+            if (!audioContext || !audioEnabled) return;
+            
+            try {
+                const oscillator = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                
+                oscillator.connect(gain);
+                gain.connect(audioContext.destination);
+                
+                // Suara pendek untuk kartu
+                oscillator.type = 'sine';
+                oscillator.frequency.value = 440;
+                gain.gain.value = 0.1;
+                
+                oscillator.start();
+                
+                // Fade out
+                gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3);
+                
+                setTimeout(() => {
+                    oscillator.stop();
+                }, 300);
+            } catch (e) {
+                console.log("Error memutar suara kartu:", e);
             }
         }
     </script>
